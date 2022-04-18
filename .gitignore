@@ -1,0 +1,7 @@
+/venv
+/build
+/dist
+/lab1
+/*.spec
+/.idea
+/*.xml
