@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Hill.ui'
+# Form implementation generated from reading ui file 'Vernam.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -9,66 +9,56 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5 import QtCore, QtGui, QtWidgets
-import numpy as np
-from math import isqrt
-from sympy import Matrix
 
 
-# English uppercase
-en_alph = list(map(chr, range(ord('a'), ord('z') + 1)))
-en_alph += ['.', '?', '!']
-# Russian uppercase
-ru_alph = list(map(chr, range(ord('а'), ord('я') + 1)))
-ru_alph.insert(6, 'ё')
-ru_alph += ['.', '?', '!', ',']
+class VernamError(Exception):
+    pass
+
+def generate_key() -> str:
+    key = ''
+
+    return key
 
 
-def define_language(letter: str) -> str or None:
-    letter = letter.lower()
-    if letter in en_alph:
-        return 'english'
-    elif letter in ru_alph:
-        return 'russian'
-    else:
-        return None
-
-
-def stong(text, step) -> list:
+def vernam(text, key):
     """
-    Split text to N-grams
+    Vernam cipher (charset: KOI8-r)
 
-    :param text: text to be splited
-    :param step: size of n-gramm
-    :return: list of N-grams
+    :param text: Text to be encrypted/decrypted
+    :param key: Key of encryption
+    :return:
     """
-    ngrams = []
-    tmp = ''
-    add_symbols_count = step - len(text) % step
-    if add_symbols_count == step:
-        add_symbols_count = 0
-    if len(text) > 1:
-        text += text[-1] * add_symbols_count
-    for i in range(len(text)):
-        tmp += text[i]
-        if len(tmp) == step:
-            ngrams.append(tmp)
-            tmp = ''
-    return ngrams
+    if not text:
+        raise VernamError("Input text is empty!")
 
+    if not key:
+        raise VernamError("The key is missing!")
 
-def vtong(vector, alphabet) -> str:
-    """
-    Transform vector to N-gramm.
+        # attempt to change the encoding of the input text
+    try:
+        text_bytes = bytearray(text, encoding="KOI8-r")
 
-    Args:
-        vector: vector to transform
-        alphabet: the alphabet from which the string is composed
-    """
-    tmp = ''
-    for i in vector:
-        tmp += alphabet[i[0]]
-    return tmp
+    except UnicodeEncodeError:
+        raise VernamError("Invalid character in input text! (KOI8-r)")
+
+        # attempt to change key encoding
+    try:
+        key_bytes = bytearray(key, encoding="KOI8-r", errors='replace')
+
+    except UnicodeEncodeError:
+        raise VernamError("Invalid character in key! (KOI8-r)")
+
+    for i in range(len(text_bytes)):
+        text_bytes[i] ^= key_bytes[i % len(key_bytes)]
+
+    try:
+        modified_text = text_bytes.decode("KOI8-r")
+
+    except UnicodeDecodeError:
+        raise VernamError("Decoding error! (from 'KOI8-r')")
+
+    return modified_text
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -229,16 +219,6 @@ class Ui_MainWindow(object):
 "color: white;\n"
 "")
         self.text_edit.setObjectName("text_edit")
-        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(100, 220, 401, 31))
-        font = QtGui.QFont()
-        font.setFamily("Century Gothic")
-        font.setPointSize(14)
-        font.setBold(False)
-        font.setWeight(50)
-        self.lineEdit.setFont(font)
-        self.lineEdit.setStyleSheet("color: white;")
-        self.lineEdit.setObjectName("lineEdit")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(20, 230, 71, 16))
         font = QtGui.QFont()
@@ -249,28 +229,37 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setStyleSheet("color: white;")
         self.label.setObjectName("label")
-        self.comboBox = QtWidgets.QComboBox(self.centralwidget)
-        self.comboBox.setGeometry(QtCore.QRect(90, 480, 134, 24))
+        self.key_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.key_btn.setGeometry(QtCore.QRect(100, 223, 31, 30))
         font = QtGui.QFont()
         font.setFamily("Century Gothic")
-        font.setPointSize(14)
-        self.comboBox.setFont(font)
-        self.comboBox.setStyleSheet("color: white")
-        self.comboBox.addItem("ENG")
-        self.comboBox.addItem("RUS")
-        self.comboBox.setEditable(False)
-        self.comboBox.setCurrentText("")
-        self.comboBox.setObjectName("comboBox")
+        self.key_btn.setFont(font)
+        self.key_btn.setStyleSheet("QPushButton {\n"
+"    color: black;\n"
+"    background-color: grey;\n"
+"    border-radius: 7px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(102, 102, 102);\n"
+"}")
+        self.key_btn.setObjectName("key_btn")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(20, 480, 61, 21))
-        font = QtGui.QFont()
-        font.setFamily("Century Gothic")
-        font.setPointSize(14)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_2.setFont(font)
-        self.label_2.setStyleSheet("color: white;")
+        self.label_2.setGeometry(QtCore.QRect(150, 230, 131, 16))
+        self.label_2.setStyleSheet("color: white;\n"
+"font: 14pt \"Century Gothic\";\n"
+"font-weight: 700;\n"
+"text-transform: uppercase;\n"
+"")
         self.label_2.setObjectName("label_2")
+        self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox.setGeometry(QtCore.QRect(300, 228, 191, 20))
+        self.checkBox.setStyleSheet("color: white;\n"
+"font: 14pt \"Century Gothic\";\n"
+"font-weight: 700;\n"
+"text-transform: uppercase;\n"
+"")
+        self.checkBox.setObjectName("checkBox")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -278,7 +267,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Hill"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Вернам"))
         self.label_10.setText(_translate("MainWindow", "Текст"))
         self.decrypt_btn.setText(_translate("MainWindow", "Расшифровать"))
         self.label_9.setText(_translate("MainWindow", "ШИФРОТЕКСТ"))
@@ -288,116 +277,36 @@ class Ui_MainWindow(object):
         self.label_8.setText(_translate("MainWindow", "ТЕКСТ"))
         self.label_11.setText(_translate("MainWindow", "Шифротекст"))
         self.label.setText(_translate("MainWindow", "КЛЮЧ"))
-        self.label_2.setText(_translate("MainWindow", "ЯЗЫК"))
+        self.key_btn.setText(_translate("MainWindow", "..."))
+        self.label_2.setText(_translate("MainWindow", "NO KEY"))
+        self.checkBox.setText(_translate("MainWindow", "СГЕНЕРИРОВАТЬ"))
 
 
-class Hill(QtWidgets.QMainWindow, Ui_MainWindow):
+class Vernam(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
-        super(Hill, self).__init__()
+        super(Vernam, self).__init__()
         self.setupUi(self)
         self.functions()
 
-    def hill(self, text, key, alphabet, mode):
-        input_text = text
-        text = ''
-
-        for i in input_text:
-            if i.lower() in alphabet:
-                text += i
-        for i in key:
-            if i not in alphabet:
-                return "Ключ и текст должны быть из одного алфавита"
-        module = len(alphabet)
-        key_length = len(key)
-        n = isqrt(key_length)
-        if n ** 2 != key_length:
-            return "Длина ключа должна быть квадратом числа"
-        matrix_key = np.array(list(map(lambda x: alphabet.index(x), key))).reshape((n, n))
-        determinant = int(np.linalg.det(matrix_key)) % module
-        if determinant == 0:
-            return "Матрица вырождена"
-        if np.gcd(determinant, module) != 1:
-            return "Неверный ключ"
-
-
-        match mode:
-            case 'encrypt':
-                pass
-            case 'decrypt':
-                matrix_key = np.array(Matrix(matrix_key).inv_mod(len(alphabet)))
-
-        # transform n-gramms to vectors
-        ngrams = stong(text, n)
-        ngram_vectors = []
-        for ngram in ngrams:
-            tmp = np.array(list(map(lambda x: alphabet.index(x.lower()), ngram))).reshape((n, 1))
-            ngram_vectors.append(tmp)
-        ngram_vectors = np.array(ngram_vectors)
-
-        # encryption/decryption
-        transformed_vectors = []
-        for vector in ngram_vectors:
-            tmp = np.dot(matrix_key, vector) % module
-            transformed_vectors.append(tmp)
-        transformed_vectors = np.array(transformed_vectors)
-
-        # compose n-gramms from vectors
-        result = []
-        for vector in transformed_vectors:
-            result.append(vtong(vector, alphabet))
-
-        result = ''.join(result)
-        result = list(result)
-        print(ngrams)
-        print(ngram_vectors)
-        print(result)
-        print(matrix_key)
-
-        for i in range(len(input_text)):
-            if input_text[i].lower() not in alphabet:
-                result.insert(i, input_text[i])
-            if input_text[i].isalpha() and result[i].upper() == input_text[i]:
-                result[i] = result[i].upper()
-        return ''.join(result)
-
     def functions(self):
-        self.encrypt_btn.clicked.connect(lambda: self.encrypt(self.text_edit.toPlainText(),
-                                                              self.lineEdit.text(), self.comboBox.currentText()))
+        self.encrypt_btn.clicked.connect(lambda: self.encrypt(self.text_edit.toPlainText(), key="a"))
+        self.decrypt_btn.clicked.connect(lambda: self.decrypt(self.text_edit_encrypted.toPlainText(), key="a"))
 
-        self.decrypt_btn.clicked.connect(lambda: self.decrypt(self.text_edit_encrypted.toPlainText(),
-                                                              self.lineEdit.text(), self.comboBox.currentText()))
-
-    def encrypt(self, text, key, lang):
-        alphabet = []
-        key = key.lower()
-        match lang:
-            case 'RUS':
-                alphabet = ru_alph
-            case 'ENG':
-                alphabet = en_alph
-
-        encrypted_text = self.hill(text, key, alphabet, mode='encrypt')
-        print(encrypted_text)
+    def encrypt(self, text, key):
+        encrypted_text = vernam(text, key)
         self.textBrowser_encrypted.setText(encrypted_text)
+        self.decrypt(encrypted_text, key='a')
+        print(encrypted_text)
 
-    def decrypt(self, text, key, lang):
-        alphabet = []
-        key = key.lower()
-        match lang:
-            case 'RUS':
-                alphabet = ru_alph
-            case 'ENG':
-                alphabet = en_alph
-
-        decrypted_text = self.hill(text, key, alphabet, mode='decrypt')
-        print(decrypted_text)
+    def decrypt(self, text, key):
+        decrypted_text = vernam(text, key)
         self.textBrowser_decrypted.setText(decrypted_text)
-
+        print(decrypted_text)
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = Hill()
+    MainWindow = Vernam()
     # MainWindow = QtWidgets.QMainWindow()
     # ui = Ui_MainWindow()
     # ui.setupUi(MainWindow)
