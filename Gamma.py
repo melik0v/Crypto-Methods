@@ -443,6 +443,7 @@ class Gamma(QtWidgets.QMainWindow, Ui_MainWindow):
         self.decrypt_btn.clicked.connect(lambda: self.decrypt(self.text_edit_encrypted.toPlainText()))
 
         self.key_btn.clicked.connect(lambda: self.open_key_file())
+
         self.OutputFile_btn.clicked.connect(lambda: self.change_output_files_labels('decrypt'))
         self.InputFile_btn.clicked.connect(lambda: self.change_input_files_labels('decrypt'))
         self.OutputFile_btn_2.clicked.connect(lambda: self.change_output_files_labels('encrypt'))
