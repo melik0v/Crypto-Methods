@@ -12,7 +12,6 @@ import string
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 from os import path
-from random import randint
 
 
 class VernamError(Exception):

@@ -319,7 +319,6 @@ class Hill(QtWidgets.QMainWindow, Ui_MainWindow):
         if np.gcd(determinant, module) != 1:
             return "Неверный ключ"
 
-
         match mode:
             case 'encrypt':
                 pass

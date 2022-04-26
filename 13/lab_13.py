@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 
+
 # frequency crypto analisys
 # English lowercase
 en_alph = list(map(chr, range(ord('a'), ord('z') + 1)))
@@ -124,7 +125,7 @@ def graph(dictionary: dict):
         y.append(i[1])
     fig, ax = plt.subplots()
     ax.bar(x, y)
-    ax.set_facecolor('seashell')
+    ax.set_facecolor('black')
     fig.set_facecolor('floralwhite')
     plt.show()
 
@@ -152,7 +153,6 @@ def functions(language: str):
     # print(sort(calculate_letter_real_freqs(input_text, 'english')))
     # print(decrypt(letters_nominal_freqs, sort(calculate_letter_real_freqs
     # (input_text, 'english')), input_text, 'english'))
-
     get_nominal_freqs(language)
     print(letters_nominal_freqs)
     input_text = read_file(path)

@@ -43,11 +43,11 @@ def gamma(text, key):
         return "The key is missing!"
 
         # attempt to change the encoding of the input text
-    try:
-        text_bytes = bytearray(text, encoding="KOI8-r")
-
-    except UnicodeEncodeError:
-        return "Invalid character in input text! (KOI8-r)"
+    # try:
+    #     text_bytes = bytearray(text, encoding='UTF-8')
+    #
+    # except UnicodeEncodeError:
+    #     return "Invalid character in input text! (KOI8-r)"
 
         # attempt to change key encoding
     try:
@@ -56,16 +56,16 @@ def gamma(text, key):
     except UnicodeEncodeError:
         return "Invalid character in key! (KOI8-r)"
 
-    for i in range(len(text_bytes)):
-        text_bytes[i] ^= key_bytes[i % len(key_bytes)]
+    for i in range(len(text)):
+        text[i] ^= key_bytes[i % len(key_bytes)]
+    #
+    # try:
+    #     modified_text = text_bytes.decode("UTF-8")
+    #
+    # except UnicodeDecodeError:
+    #     return "Decoding error! (from 'UTF-8')"
 
-    try:
-        modified_text = text_bytes.decode("KOI8-r")
-
-    except UnicodeDecodeError:
-        return "Decoding error! (from 'KOI8-r')"
-
-    return modified_text
+    return text
 
 
 class Ui_MainWindow(object):
@@ -401,7 +401,7 @@ class Gamma(QtWidgets.QMainWindow, Ui_MainWindow):
         self.functions()
 
     def open_file_dialog_box(self):
-        file, _ = QFileDialog.getOpenFileName(self, 'Open File', './txt', "Text file (*.txt)")
+        file, _ = QFileDialog.getOpenFileName(self, 'Open File', './txt')
         return path.basename(file)
 
     def change_input_files_labels(self, function: str):
@@ -453,9 +453,11 @@ class Gamma(QtWidgets.QMainWindow, Ui_MainWindow):
         key = ''
         # open input file
         if self.input_path_2.text() != 'NO INPUT FILE':
-            fin = open('./txt/' + self.input_path_2.text(), 'r', encoding='UTF-8')
-            text = fin.read()
+            fin = open('./txt/' + self.input_path_2.text(), 'rb')
+            text = str(fin.read())[2:-1]
+            # text = text[2:-1]
             fin.close()
+        text_bytes = bytearray(text, encoding='UTF-8')
 
         # write generated key in key file
         if self.label_2.text() != 'NO KEY' and text != '':
@@ -470,15 +472,15 @@ class Gamma(QtWidgets.QMainWindow, Ui_MainWindow):
             key = fin.read()
             fin.close()
 
-        encrypted_text = gamma(text, key)
+        encrypted_text = gamma(text_bytes, key)
 
         # open output file
         if self.output_path_2.text() != 'NO OUTPUT FILE':
-            fout = open('./txt/' + self.output_path_2.text(), 'w', encoding='UTF-8')
-            fout.write(encrypted_text)
+            fout = open('./txt/' + self.output_path_2.text(), 'w')
+            fout.write(encrypted_text.decode('ANSI'))
             fout.close()
-        else:
-            self.textBrowser_encrypted.setText(encrypted_text)
+        # else:
+        #     self.textBrowser_encrypted.setText(encrypted_text)
         # self.decrypt(encrypted_text)
 
     def decrypt(self, text):
@@ -489,22 +491,23 @@ class Gamma(QtWidgets.QMainWindow, Ui_MainWindow):
             key = fin.read()
             fin.close()
 
+        text_bytes = bytearray(text, encoding='UTF-8')
         # open input file
         if self.input_path.text() != 'NO INPUT FILE':
-            fin = open('./txt/' + self.input_path.text(), 'r', encoding='UTF-8')
-            text = fin.read()
+            fin = open('./txt/' + self.input_path.text(), 'rb')
+            text = str(fin.read())[2:-1]
             fin.close()
 
-        decrypted_text = gamma(text, key)
+        decrypted_text = gamma(text_bytes, key)
 
         # open output file
         if self.output_path.text() != 'NO OUTPUT FILE':
-            fout = open('./txt/' + self.input_path.text(), 'w', encoding='UTF-8')
-            fout.write(decrypted_text)
+            fout = open('./txt/' + self.input_path.text(), 'w')
+            fout.write(decrypted_text.decode('ANSI'))
             fout.close()
-            self.textBrowser_decrypted.setPlainText(decrypted_text)
-        else:
-            self.textBrowser_decrypted.setText(decrypted_text)
+            # self.textBrowser_decrypted.setPlainText(decrypted_text)
+        # else:
+        #     self.textBrowser_decrypted.setText(decrypted_text)
 
 
 if __name__ == "__main__":
