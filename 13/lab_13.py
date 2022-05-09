@@ -1,4 +1,13 @@
+import os.path
+
+import numpy
+from os import path
+import pyqtgraph
 from matplotlib import pyplot as plt
+from Caesar import caesar
+from lab13_UI import QtWidgets, Ui_MainWindow, PlotWidget
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5 import QtCore
 
 
 # frequency crypto analisys
@@ -11,6 +20,113 @@ ru_alph.insert(6, 'ё')
 letters_nominal_freqs = {}
 
 
+class FreqAnalisys(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super(FreqAnalisys, self).__init__()
+        self.setupUi(self)
+        # grid = QtWidgets.QGridLayout(self.widget)
+        # grid.addWidget(self.widget, 0, 0)
+        self.functions()
+
+    def functions(self):
+        self.decrypt_btn.clicked.connect(lambda: self.analize(self.comboBox.currentText()))
+        self.InputFile_btn.clicked.connect(lambda: self.change_file_label('in_file'))
+        self.OutputFile_btn.clicked.connect(lambda: self.change_file_label('out_file'))
+        self.Open_InputFile_btn.clicked.connect(lambda: self.startToListen('in_file'))
+        self.Open_OutputFile_btn.clicked.connect(lambda: self.startToListen('out_file'))
+
+    def open_file_dialog_box(self):
+        file, _ = QFileDialog.getOpenFileName(self, 'Open File', './')
+        return path.basename(file)
+
+    def change_file_label(self, type_of_file: str):
+        filename = self.open_file_dialog_box()
+        match type_of_file:
+            case 'in_file':
+                self.input_path.setText(filename)
+            case 'out_file':
+                self.output_path.setText(filename)
+            case _:
+                pass
+
+    def analize(self, language: str):
+        """
+        Interface for access to other functions
+
+        :param language: string with name of language e.g. 'russian'
+        :return:
+        """
+
+        match language:
+            case 'RUS':
+                alphabet = ru_alph
+            case 'ENG':
+                alphabet = en_alph
+            case _:
+                return 0
+
+        self.widget.clear()
+        get_nominal_freqs(language)
+        print(letters_nominal_freqs)
+
+        input_text = read_file('./' + self.input_path.text())
+        sorted_real_freqs = sort(calculate_letter_real_freqs(input_text, alphabet), 'value', 'desc')
+        print(sorted_real_freqs)
+        decrypted_text = (decrypt(letters_nominal_freqs, sorted_real_freqs, input_text, language))
+        self.make_gistogram(letters_nominal_freqs, sorted_real_freqs)
+        self.textBrowser.setText(decrypted_text)
+        if self.output_path.text() != 'NO OUTPUT FILE':
+            with open('./' + self.output_path.text(), 'w', encoding='UTF-8') as fout:
+                fout.write(decrypted_text)
+        letters_nominal_freqs.clear()
+
+    def startToListen(self, mode: str):
+        match mode:
+            case 'in_file':
+                if self.input_path.text() != 'NO INPUT FILE':
+                    file = os.path.abspath(self.input_path.text())
+            case 'out_file':
+                if self.output_path.text() != 'NO OUTPUT FILE':
+                    file = os.path.abspath(self.output_path.text())
+            case _:
+                raise Exception('File name is empty')
+
+        process = QtCore.QProcess(self)
+        process.start('notepad', [file])
+
+        # self.setEnabled(False)
+        # process.finished.connect(lambda: self.setEnabled(True))
+
+    def make_gistogram(self, freqs_nominal: dict, freqs_real: dict):
+        freqs_real = sort(freqs_real, 'key', 'asc')
+        ticks = [list(zip(range(len(freqs_real) + 1), freqs_real.keys()))]
+        freqs_real = freqs_real.items()
+
+        freqs_nominal = sort(freqs_nominal, 'key', 'asc')
+        freqs_nominal = freqs_nominal.items()
+
+        letter_real = []
+        letter_nominal = []
+        freq_real = []
+        freq_nominal = []
+        c = 0
+        for i, j in zip(freqs_real, freqs_nominal):
+            letter_nominal.append(c - 0.1)
+            letter_real.append(c + 0.1)
+
+            freq_real.append(i[1])
+            freq_nominal.append(j[1])
+            c += 1
+
+        self.widget.setYRange(0, max(freq_nominal) * 1.005, 0.05)
+        xax = self.widget.getAxis('bottom')
+        xax.setTicks(ticks)
+        bargraph_nominal = pyqtgraph.BarGraphItem(x=letter_nominal, height=freq_nominal, brush='blue', width=0.2)
+        bargraph_real = pyqtgraph.BarGraphItem(x=letter_real, height=freq_real, brush='red', width=0.2)
+        self.widget.addItem(bargraph_real)
+        self.widget.addItem(bargraph_nominal)
+
+
 def read_file(path: str):
     file = open(path, 'r', encoding='UTF-8')
     text = file.read()
@@ -20,9 +136,9 @@ def read_file(path: str):
 
 def get_nominal_freqs(language: str):
     match language:
-        case 'english':
+        case 'ENG':
             path = './eng_letter_table.txt'
-        case 'russian':
+        case 'RUS':
             path = './rus_letter_table.txt'
         case _:
             return 0
@@ -61,7 +177,7 @@ def sort(dictionary: dict, field: str, order: str) -> dict:
 
 def clc(text: str, alphabet) -> int:
     """
-    Calculate count of letters included in alphabet
+    Calculate count of letters in text included in alphabet
 
     :param text: Text to be checked
     :param alphabet: Charset
@@ -74,17 +190,20 @@ def clc(text: str, alphabet) -> int:
     return result
 
 
+
 def calculate_letter_real_freqs(text: str, alphabet) -> dict:
     text_len = clc(text, alphabet)
     letters_real_freqs = {key: 0 for key in letters_nominal_freqs.keys()}
-    # print(letters_real_freqs)
     for i in text:
         for key in letters_real_freqs.keys():
             if i.upper() == key:
                 letters_real_freqs[key] += 1
 
     for key in letters_real_freqs.keys():
-        letters_real_freqs[key] /= text_len
+        try:
+            letters_real_freqs[key] /= text_len
+        except ZeroDivisionError:
+            letters_real_freqs[key] = 0
         letters_real_freqs[key] = round(letters_real_freqs[key], 3)
 
     return letters_real_freqs
@@ -92,9 +211,9 @@ def calculate_letter_real_freqs(text: str, alphabet) -> dict:
 
 def decrypt(nominal_freqs: dict, real_freqs: dict, text: str, language: str):
     match language:
-        case 'english':
+        case 'ENG':
             alphabet = en_alph
-        case 'russian':
+        case 'RUS':
             alphabet = ru_alph
         case _:
             alphabet = ''
@@ -104,66 +223,12 @@ def decrypt(nominal_freqs: dict, real_freqs: dict, text: str, language: str):
     for nominal_key, real_key in zip(nominal_freqs.keys(), real_freqs.keys()):
         nominal_keys += nominal_key
         real_keys += real_key
-    # print(nominal_keys)
-    # print(real_keys)
-    result = ''
-    for i in text:
-        if i.lower() in alphabet:
-            result += nominal_keys[real_keys.index(i)]
-        else:
-            result += i
+
+    shift = alphabet.index(nominal_keys[0].lower()) - alphabet.index(real_keys[0].lower())
+    result = caesar(text, shift)
+    # for i in text:
+    #     if i.lower() in alphabet:
+    #         result += nominal_keys[real_keys.index(i.upper())]
+    #     else:
+    #         result += i
     return result
-
-
-def graph(dictionary: dict):
-    dictionary = sort(dictionary, 'key', 'asc')
-    dictionary = dictionary.items()
-    x = []
-    y = []
-    for i in dictionary:
-        x.append(i[0])
-        y.append(i[1])
-    fig, ax = plt.subplots()
-    ax.bar(x, y)
-    ax.set_facecolor('black')
-    fig.set_facecolor('floralwhite')
-    plt.show()
-
-
-def functions(language: str):
-    """
-    Interface for access to other functions
-
-    :param language: string with name of language e.g. 'russian'
-    :return:
-    """
-
-    match language:
-        case 'russian':
-            alphabet = ru_alph
-            path = './input_rus.txt'
-        case 'english':
-            alphabet = en_alph
-            path = './input_eng.txt'
-        case _:
-            return 0
-    # get_nominal_freqs('english')
-    # print(letters_nominal_freqs)
-    # input_text = read_file()
-    # print(sort(calculate_letter_real_freqs(input_text, 'english')))
-    # print(decrypt(letters_nominal_freqs, sort(calculate_letter_real_freqs
-    # (input_text, 'english')), input_text, 'english'))
-    get_nominal_freqs(language)
-    print(letters_nominal_freqs)
-    input_text = read_file(path)
-    print(sort(calculate_letter_real_freqs(input_text, alphabet), 'value', 'desc'))
-    print(decrypt(letters_nominal_freqs, sort(calculate_letter_real_freqs(input_text, alphabet), 'value', 'desc'),
-                  input_text, language))
-
-    graph(calculate_letter_real_freqs(input_text, alphabet))
-    letters_nominal_freqs.clear()
-
-
-print('ENGLISH')
-functions('english')
-functions('russian')
