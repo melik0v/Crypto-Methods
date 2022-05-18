@@ -121,21 +121,21 @@ class Ui_MainWindow(object):
 "")
         self.lang_name.setObjectName("lang_name")
         self.language_comboBox = QtWidgets.QComboBox(self.centralwidget)
-        self.language_comboBox.setGeometry(QtCore.QRect(110, 380, 70, 31))
+        self.language_comboBox.setGeometry(QtCore.QRect(100, 380, 70, 31))
         self.language_comboBox.setStyleSheet("background-color: black;\n"
 "color: white;\n"
 "font-family: Century Gothic;\n"
 "font-size: 14px;")
         self.language_comboBox.setObjectName("language_comboBox")
         self.method_comboBox = QtWidgets.QComboBox(self.centralwidget)
-        self.method_comboBox.setGeometry(QtCore.QRect(650, 260, 231, 31))
+        self.method_comboBox.setGeometry(QtCore.QRect(640, 260, 301, 31))
         self.method_comboBox.setStyleSheet("background-color: black;\n"
 "color: white;\n"
 "font-family: Century Gothic;\n"
 "font-size: 14px;")
         self.method_comboBox.setObjectName("method_comboBox")
         self.method_name = QtWidgets.QLabel(self.centralwidget)
-        self.method_name.setGeometry(QtCore.QRect(520, 260, 116, 31))
+        self.method_name.setGeometry(QtCore.QRect(520, 260, 121, 31))
         self.method_name.setStyleSheet("color: white;\n"
 "background-color: black;\n"
 "font: 14pt \"Century Gothic\";\n"
@@ -160,7 +160,7 @@ class Ui_MainWindow(object):
 "")
         self.lang_name_2.setObjectName("lang_name_2")
         self.key_label = QtWidgets.QLabel(self.centralwidget)
-        self.key_label.setGeometry(QtCore.QRect(380, 380, 71, 31))
+        self.key_label.setGeometry(QtCore.QRect(190, 380, 71, 31))
         self.key_label.setStyleSheet("color: white;\n"
 "background-color: black;\n"
 "font: 14pt \"Century Gothic\";\n"
@@ -178,7 +178,7 @@ class Ui_MainWindow(object):
 "")
         self.key_len_label.setObjectName("key_len_label")
         self.shift_count_label = QtWidgets.QLabel(self.centralwidget)
-        self.shift_count_label.setGeometry(QtCore.QRect(460, 300, 191, 31))
+        self.shift_count_label.setGeometry(QtCore.QRect(520, 300, 191, 31))
         self.shift_count_label.setStyleSheet("color: white;\n"
 "background-color: black;\n"
 "font: 14pt \"Century Gothic\";\n"
@@ -187,15 +187,16 @@ class Ui_MainWindow(object):
 "")
         self.shift_count_label.setObjectName("shift_count_label")
         self.key_len_spinbox = QtWidgets.QSpinBox(self.centralwidget)
-        self.key_len_spinbox.setGeometry(QtCore.QRect(350, 300, 91, 31))
+        self.key_len_spinbox.setGeometry(QtCore.QRect(340, 300, 91, 31))
         self.key_len_spinbox.setStyleSheet("background-color: black;\n"
 "color: white;\n"
 "font-family: Century Gothic;\n"
 "font-size: 14px;")
+        self.key_len_spinbox.setMinimum(1)
         self.key_len_spinbox.setMaximum(1000)
         self.key_len_spinbox.setObjectName("key_len_spinbox")
         self.shift_count_spinbox = QtWidgets.QSpinBox(self.centralwidget)
-        self.shift_count_spinbox.setGeometry(QtCore.QRect(660, 300, 91, 31))
+        self.shift_count_spinbox.setGeometry(QtCore.QRect(710, 300, 91, 31))
         self.shift_count_spinbox.setStyleSheet("background-color: black;\n"
 "color: white;\n"
 "font-family: Century Gothic;\n"
@@ -203,7 +204,7 @@ class Ui_MainWindow(object):
         self.shift_count_spinbox.setMaximum(1000)
         self.shift_count_spinbox.setObjectName("shift_count_spinbox")
         self.key_combobox = QtWidgets.QComboBox(self.centralwidget)
-        self.key_combobox.setGeometry(QtCore.QRect(460, 380, 641, 31))
+        self.key_combobox.setGeometry(QtCore.QRect(260, 380, 841, 31))
         self.key_combobox.setStyleSheet("background-color: black;\n"
 "color: white;\n"
 "font-family: Century Gothic;\n"
@@ -226,6 +227,24 @@ class Ui_MainWindow(object):
 "    background-color: rgb(102, 102, 102);\n"
 "}")
         self.decrypt_btn.setObjectName("decrypt_btn")
+        self.ngram_len_label = QtWidgets.QLabel(self.centralwidget)
+        self.ngram_len_label.setGeometry(QtCore.QRect(410, 340, 211, 31))
+        self.ngram_len_label.setStyleSheet("color: white;\n"
+"background-color: black;\n"
+"font: 14pt \"Century Gothic\";\n"
+"font-weight: 700;\n"
+"text-transform: uppercase;\n"
+"")
+        self.ngram_len_label.setObjectName("ngram_len_label")
+        self.ngram_len_spinbox = QtWidgets.QSpinBox(self.centralwidget)
+        self.ngram_len_spinbox.setGeometry(QtCore.QRect(620, 340, 91, 31))
+        self.ngram_len_spinbox.setStyleSheet("background-color: black;\n"
+"color: white;\n"
+"font-family: Century Gothic;\n"
+"font-size: 14px;")
+        self.ngram_len_spinbox.setMaximum(1000)
+        self.ngram_len_spinbox.setMinimum(3)
+        self.ngram_len_spinbox.setObjectName("ngram_len_spinbox")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -247,6 +266,7 @@ class Ui_MainWindow(object):
         self.key_len_label.setText(_translate("MainWindow", "ДЛИНА КЛЮЧА"))
         self.shift_count_label.setText(_translate("MainWindow", "ЧИСЛО СДВИГОВ"))
         self.decrypt_btn.setText(_translate("MainWindow", "Рашифровать"))
+        self.ngram_len_label.setText(_translate("MainWindow", "ДЛИНА N-ГРАММЫ"))
 from pyqtgraph import PlotWidget
 
 

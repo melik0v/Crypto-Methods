@@ -143,11 +143,11 @@ def read_file(path: str):
     return text
 
 
-input_text = read_file('./input_rus_2.txt')
-print(cac(drs(input_text, ru_alph), 200))
-strings = stic(drs(input_text, ru_alph), 6)
-key = ''
-for string in strings:
-    key += find_key_letter(string, 'RUS')
+# input_text = read_file('./input_eng_2.txt')
+# print(cac(drs(input_text, en_alph), 50))
+# strings = stic(drs(input_text, en_alph), 5)
+# key = ''
+# for string in strings:
+#     key += find_key_letter(string, 'ENG')
 # print(key)
 # print(vigenere(input_text, key, mode='decrypt'))

@@ -244,7 +244,7 @@ text-transform: uppercase;
    <widget class="QComboBox" name="language_comboBox">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>100</x>
       <y>380</y>
       <width>70</width>
       <height>31</height>
@@ -260,9 +260,9 @@ font-size: 14px;</string>
    <widget class="QComboBox" name="method_comboBox">
     <property name="geometry">
      <rect>
-      <x>650</x>
+      <x>640</x>
       <y>260</y>
-      <width>231</width>
+      <width>301</width>
       <height>31</height>
      </rect>
     </property>
@@ -278,7 +278,7 @@ font-size: 14px;</string>
      <rect>
       <x>520</x>
       <y>260</y>
-      <width>116</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -335,7 +335,7 @@ text-transform: uppercase;
    <widget class="QLabel" name="key_label">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>190</x>
       <y>380</y>
       <width>71</width>
       <height>31</height>
@@ -377,7 +377,7 @@ text-transform: uppercase;
    <widget class="QLabel" name="shift_count_label">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>520</x>
       <y>300</y>
       <width>191</width>
       <height>31</height>
@@ -398,7 +398,7 @@ text-transform: uppercase;
    <widget class="QSpinBox" name="key_len_spinbox">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>340</x>
       <y>300</y>
       <width>91</width>
       <height>31</height>
@@ -410,6 +410,9 @@ color: white;
 font-family: Century Gothic;
 font-size: 14px;</string>
     </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
     <property name="maximum">
      <number>1000</number>
     </property>
@@ -417,7 +420,7 @@ font-size: 14px;</string>
    <widget class="QSpinBox" name="shift_count_spinbox">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>710</x>
       <y>300</y>
       <width>91</width>
       <height>31</height>
@@ -436,9 +439,9 @@ font-size: 14px;</string>
    <widget class="QComboBox" name="key_combobox">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>260</x>
       <y>380</y>
-      <width>641</width>
+      <width>841</width>
       <height>31</height>
      </rect>
     </property>
@@ -478,6 +481,46 @@ QPushButton:pressed {
     </property>
     <property name="text">
      <string>Рашифровать</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ngram_len_label">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>340</y>
+      <width>211</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: white;
+background-color: black;
+font: 14pt &quot;Century Gothic&quot;;
+font-weight: 700;
+text-transform: uppercase;
+</string>
+    </property>
+    <property name="text">
+     <string>ДЛИНА N-ГРАММЫ</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="ngram_len_spinbox">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>340</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: black;
+color: white;
+font-family: Century Gothic;
+font-size: 14px;</string>
+    </property>
+    <property name="maximum">
+     <number>1000</number>
     </property>
    </widget>
   </widget>

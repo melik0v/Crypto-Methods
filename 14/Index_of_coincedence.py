@@ -104,7 +104,7 @@ def find_keys(strings: tuple[str], alphabet: list) -> tuple:
         mutual_index = 0.0
         shift = 0
         for j in range(1, len(alphabet)):
-            tmp = mioc(strings[0], caesar(strings[i], j), ru_alph)
+            tmp = mioc(strings[0], caesar(strings[i], j), alphabet)
             if mutual_index < tmp:
                 mutual_index = tmp
                 shift = j
@@ -118,14 +118,14 @@ def find_keys(strings: tuple[str], alphabet: list) -> tuple:
     return tuple(keys)
 
 
-input_text = read_file('./input_rus_2.txt')
-find_key_len(input_text, ru_alph)
-splitted_text = stic(drs(input_text, ru_alph), 6)
-print(np.array(splitted_text))
-print("IOC")
-for substr in splitted_text:
-    print(ioc(substr, ru_alph))
-print("MIOC")
-print(np.array(find_keys(splitted_text, ru_alph)))
-print(decrypt(input_text, 'привет'))
+# input_text = read_file('./input_eng_2.txt')
+# find_key_len(input_text, en_alph)
+# splitted_text = stic(drs(input_text, en_alph), 5)
+# print(np.array(splitted_text))
+# print("IOC")
+# for substr in splitted_text:
+#     print(ioc(substr, en_alph))
+# print("MIOC")
+# print(np.array(find_keys(splitted_text, en_alph)))
+# print(decrypt(input_text, 'hello'))
 

@@ -105,14 +105,14 @@ def find_key_length(ngrams) -> tuple:
     return tuple(set(possible_len_list))
 
 
-input_text = read_file('./input_rus_2.txt')
-ngram_list = find_ngramm(drs(input_text, ru_alph), 3)
-key_length_options = find_key_length(ngram_list)
-print(f'Возможные длины ключа: {key_length_options}')
-
-strings = stic(drs(input_text, ru_alph), key_length_options[1])
-key = ''
-for string in strings:
-    key += find_key_letter(string, 'RUS')
-print(f'Ключ: {key}')
-print(vigenere(input_text, key, mode='decrypt'))
+# input_text = read_file('./input_eng_2.txt')
+# ngram_list = find_ngramm(drs(input_text, en_alph), 3)
+# key_length_options = find_key_length(ngram_list)
+# print(f'Возможные длины ключа: {key_length_options}')
+#
+# strings = stic(drs(input_text, en_alph), key_length_options[1])
+# key = ''
+# for string in strings:
+#     key += find_key_letter(string, 'ENG')
+# print(f'Ключ: {key}')
+# print(vigenere(input_text, key, mode='decrypt'))
