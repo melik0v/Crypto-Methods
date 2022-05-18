@@ -235,7 +235,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_10.setText(_translate("MainWindow", "Текст"))
-        self.decrypt_btn.setText(_translate("MainWindow", "Расшифровать"))
+        self.decrypt_btn.setText(_translate("MainWindow", "Дешифровать"))
         self.label_4.setText(_translate("MainWindow", "ЧАСТОТНЫЙ КРИПТОАНАЛИЗ"))
         self.label_11.setText(_translate("MainWindow", "Шифротекст"))
         self.InputFile_btn.setText(_translate("MainWindow", "Входной файл"))

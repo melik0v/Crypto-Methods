@@ -1,14 +1,11 @@
 import os.path
-
-import numpy
 from os import path
 import pyqtgraph
-from matplotlib import pyplot as plt
-from Caesar import caesar
-from lab13_UI import QtWidgets, Ui_MainWindow, PlotWidget
-from PyQt5.QtWidgets import QFileDialog
+from lab13_UI import QtWidgets, Ui_MainWindow
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5 import QtCore
-
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTableWidgetItem, QApplication, QStyledItemDelegate, QTableWidget
 
 # frequency crypto analisys
 # English lowercase
@@ -20,15 +17,26 @@ ru_alph.insert(6, 'ё')
 letters_nominal_freqs = {}
 
 
+def show_err():
+    error = QMessageBox()
+    error.setWindowTitle('Ошибка')
+    error.setText('Ошибка')
+    error.setIcon(QMessageBox.Critical)
+    error.setStandardButtons(QMessageBox.Close)
+    close_btn = error.button(QMessageBox.Close)
+    close_btn.setText('Закрыть')
+
+    error.exec_()
+
+
 class FreqAnalisys(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(FreqAnalisys, self).__init__()
         self.setupUi(self)
-        # grid = QtWidgets.QGridLayout(self.widget)
-        # grid.addWidget(self.widget, 0, 0)
         self.functions()
 
     def functions(self):
+        self.comboBox.currentTextChanged.connect(lambda: self.tableWidget.clear())
         self.decrypt_btn.clicked.connect(lambda: self.analize(self.comboBox.currentText()))
         self.InputFile_btn.clicked.connect(lambda: self.change_file_label('in_file'))
         self.OutputFile_btn.clicked.connect(lambda: self.change_file_label('out_file'))
@@ -44,8 +52,12 @@ class FreqAnalisys(QtWidgets.QMainWindow, Ui_MainWindow):
         match type_of_file:
             case 'in_file':
                 self.input_path.setText(filename)
+                if not filename:
+                    self.input_path.setText('NO INPUT FILE')
             case 'out_file':
                 self.output_path.setText(filename)
+                if not filename:
+                    self.output_path.setText('NO OUTPUT FILE')
             case _:
                 pass
 
@@ -67,20 +79,29 @@ class FreqAnalisys(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.widget.clear()
         get_nominal_freqs(language)
-        print(letters_nominal_freqs)
-
-        input_text = read_file('./' + self.input_path.text())
+        if self.input_path.text() != 'NO INPUT FILE':
+            input_text = read_file('./' + self.input_path.text())
+        else:
+            return 0
         sorted_real_freqs = sort(calculate_letter_real_freqs(input_text, alphabet), 'value', 'desc')
-        print(sorted_real_freqs)
-        decrypted_text = (decrypt(letters_nominal_freqs, sorted_real_freqs, input_text, language))
+        a = self.tableWidget.item(0, 0)
+        if a is None:
+            self.set_table(letters_nominal_freqs, sorted_real_freqs)
+
+        decrypted_text = (self.decrypt(input_text, language))
         self.make_gistogram(letters_nominal_freqs, sorted_real_freqs)
+
         self.textBrowser.setText(decrypted_text)
         if self.output_path.text() != 'NO OUTPUT FILE':
             with open('./' + self.output_path.text(), 'w', encoding='UTF-8') as fout:
                 fout.write(decrypted_text)
+
+        print(letters_nominal_freqs)
+        print(sorted_real_freqs)
         letters_nominal_freqs.clear()
 
     def startToListen(self, mode: str):
+        file = ''
         match mode:
             case 'in_file':
                 if self.input_path.text() != 'NO INPUT FILE':
@@ -93,9 +114,6 @@ class FreqAnalisys(QtWidgets.QMainWindow, Ui_MainWindow):
 
         process = QtCore.QProcess(self)
         process.start('notepad', [file])
-
-        # self.setEnabled(False)
-        # process.finished.connect(lambda: self.setEnabled(True))
 
     def make_gistogram(self, freqs_nominal: dict, freqs_real: dict):
         freqs_real = sort(freqs_real, 'key', 'asc')
@@ -118,13 +136,64 @@ class FreqAnalisys(QtWidgets.QMainWindow, Ui_MainWindow):
             freq_nominal.append(j[1])
             c += 1
 
-        self.widget.setYRange(0, max(freq_nominal) * 1.005, 0.05)
+        self.widget.setYRange(0, max(freq_nominal) * 1.05, 0.05)
         xax = self.widget.getAxis('bottom')
         xax.setTicks(ticks)
         bargraph_nominal = pyqtgraph.BarGraphItem(x=letter_nominal, height=freq_nominal, brush='blue', width=0.2)
         bargraph_real = pyqtgraph.BarGraphItem(x=letter_real, height=freq_real, brush='red', width=0.2)
         self.widget.addItem(bargraph_real)
         self.widget.addItem(bargraph_nominal)
+
+    def set_table(self, left_col: dict, right_col: dict):
+        self.tableWidget.setColumnCount(2)
+        row = 0
+        for i, j in zip(left_col.keys(), right_col.keys()):
+            self.tableWidget.setRowCount(row + 1)
+            self.tableWidget.setItem(row, 1, QTableWidgetItem(i))
+            QTableWidgetItem(i).setForeground(Qt.blue)
+
+            self.tableWidget.setItem(row, 0, QTableWidgetItem(j))
+            row += 1
+
+    def get_table(self):
+        nominal_keys = [self.tableWidget.item(row, 1).text().upper()
+                        for row in range(self.tableWidget.rowCount())]
+
+        real_keys = [self.tableWidget.item(row, 0).text().upper()
+                     for row in range(self.tableWidget.rowCount())]
+
+        for i, j in zip(nominal_keys, real_keys):
+            if len(i) > 1 or len(j) > 1 or not i.isalpha() or not j.isalpha():
+                show_err()
+                return 0
+
+        return nominal_keys, real_keys
+
+    def decrypt(self, text: str, language: str):
+        match language:
+            case 'ENG':
+                alphabet = en_alph
+            case 'RUS':
+                alphabet = ru_alph
+            case _:
+                alphabet = ''
+        # strings from the keys of dictionaries of nominal and real frequencies
+        # nominal_keys = ''
+        # real_keys = ''
+        # for nominal_key, real_key in zip(nominal_freqs.keys(), real_freqs.keys()):
+        #     nominal_keys += nominal_key
+        #     real_keys += real_key
+        nominal_keys, real_keys = self.get_table()
+
+        # shift = alphabet.index(nominal_keys[0].lower()) - alphabet.index(real_keys[0].lower())
+        # result = caesar(text, shift)
+        result = ''
+        for i in text:
+            if i.lower() in alphabet:
+                result += nominal_keys[real_keys.index(i.upper())]
+            else:
+                result += i
+        return result
 
 
 def read_file(path: str):
@@ -190,7 +259,6 @@ def clc(text: str, alphabet) -> int:
     return result
 
 
-
 def calculate_letter_real_freqs(text: str, alphabet) -> dict:
     text_len = clc(text, alphabet)
     letters_real_freqs = {key: 0 for key in letters_nominal_freqs.keys()}
@@ -207,28 +275,3 @@ def calculate_letter_real_freqs(text: str, alphabet) -> dict:
         letters_real_freqs[key] = round(letters_real_freqs[key], 3)
 
     return letters_real_freqs
-
-
-def decrypt(nominal_freqs: dict, real_freqs: dict, text: str, language: str):
-    match language:
-        case 'ENG':
-            alphabet = en_alph
-        case 'RUS':
-            alphabet = ru_alph
-        case _:
-            alphabet = ''
-    # strings from the keys of dictionaries of nominal and real frequencies
-    nominal_keys = ''
-    real_keys = ''
-    for nominal_key, real_key in zip(nominal_freqs.keys(), real_freqs.keys()):
-        nominal_keys += nominal_key
-        real_keys += real_key
-
-    shift = alphabet.index(nominal_keys[0].lower()) - alphabet.index(real_keys[0].lower())
-    result = caesar(text, shift)
-    # for i in text:
-    #     if i.lower() in alphabet:
-    #         result += nominal_keys[real_keys.index(i.upper())]
-    #     else:
-    #         result += i
-    return result

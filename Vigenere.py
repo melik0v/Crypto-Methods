@@ -49,6 +49,67 @@ def tolist(array: np.ndarray) -> list:
     return result
 
 
+def vigenere(text: str, key: str, mode: str):
+    # key under the text
+    text_key = ''
+    # counter for ch != ' '
+    counter = 0
+    encrypted_text = ''
+    if not key.isalpha():
+        show_err(2)
+        return 0
+    for ch in text:
+        if ch not in en_alph_lower and ch not in en_alph_upper and ch not in ru_alph_lower and \
+                ch not in ru_alph_upper:
+            text_key += ' '
+            continue
+        text_key += key[counter % len(key)]
+        counter += 1
+
+    for i, j in zip(text, text_key):
+        # looking for which alphabet the key symbol belongs to
+        if j in en_alph_lower:
+            offset = en_alph_lower.index(j)
+        elif j in en_alph_upper:
+            offset = en_alph_upper.index(j)
+        elif j in ru_alph_lower:
+            offset = ru_alph_lower.index(j)
+        elif j in ru_alph_upper:
+            offset = ru_alph_upper.index(j)
+        else:
+            offset = 0
+
+        match mode:
+            case 'encrypt':
+                offset = -offset
+            case 'decrypt':
+                pass
+        # looking for which alphabet the text symbol belongs to
+        if i in en_alph_lower:
+            rolled_alph = np.roll(en_alph_lower, offset)
+            encrypted_text += rolled_alph[en_alph_lower.index(i)]
+            continue
+
+        elif i in en_alph_upper:
+            rolled_alph = np.roll(en_alph_upper, offset)
+            encrypted_text += rolled_alph[en_alph_upper.index(i)]
+            continue
+
+        elif i in ru_alph_lower:
+            rolled_alph = np.roll(ru_alph_lower, offset)
+            encrypted_text += rolled_alph[ru_alph_lower.index(i)]
+            continue
+
+        elif i in ru_alph_upper:
+            rolled_alph = np.roll(ru_alph_upper, offset)
+            encrypted_text += rolled_alph[ru_alph_upper.index(i)]
+            continue
+        else:
+            encrypted_text += i
+
+    return encrypted_text
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -411,57 +472,8 @@ class Vigenere(QtWidgets.QMainWindow, Ui_MainWindow):
             fin = open(self.input_path_2.text(), 'r')
             text = fin.read()
             fin.close()
-        # key under the text
-        text_key = ''
-        # counter for ch != ' '
-        counter = 0
-        encrypted_text = ''
-        if not key.isalpha():
-            show_err(2)
-            return 0
-        for ch in text:
-            if ch not in en_alph_lower and ch not in en_alph_upper and ch not in ru_alph_lower and \
-                    ch not in ru_alph_upper:
-                text_key += ' '
-                continue
 
-            text_key += key[counter % len(key)]
-            counter += 1
-
-        for i, j in zip(text, text_key):
-            # looking for which alphabet the key symbol belongs to
-            if j in en_alph_lower:
-                offset = en_alph_lower.index(j)
-            elif j in en_alph_upper:
-                offset = en_alph_upper.index(j)
-            elif j in ru_alph_lower:
-                offset = ru_alph_lower.index(j)
-            elif j in ru_alph_upper:
-                offset = ru_alph_upper.index(j)
-            else:
-                offset = 0
-            # looking for which alphabet the text symbol belongs to
-            if i in en_alph_lower:
-                rolled_alph = np.roll(en_alph_lower, -offset)
-                encrypted_text += rolled_alph[en_alph_lower.index(i)]
-                continue
-
-            elif i in en_alph_upper:
-                rolled_alph = np.roll(en_alph_upper, -offset)
-                encrypted_text += rolled_alph[en_alph_upper.index(i)]
-                continue
-
-            elif i in ru_alph_lower:
-                rolled_alph = np.roll(ru_alph_lower, -offset)
-                encrypted_text += rolled_alph[ru_alph_lower.index(i)]
-                continue
-
-            elif i in ru_alph_upper:
-                rolled_alph = np.roll(ru_alph_upper, -offset)
-                encrypted_text += rolled_alph[ru_alph_upper.index(i)]
-                continue
-            else:
-                encrypted_text += i
+        encrypted_text = vigenere(text, key, mode='encrypt')
 
         if self.output_path_2.text() != 'NO OUTPUT FILE':
             fout = open(self.output_path_2.text(), 'w')
@@ -481,52 +493,7 @@ class Vigenere(QtWidgets.QMainWindow, Ui_MainWindow):
             text = fin.read()
             fin.close()
 
-        # key under the text
-        text_key = ''
-        if not key.isalpha():
-            show_err(2)
-            return 0
-        counter = 0
-        decrypted_text = ''
-        for ch in text:
-            if ch not in en_alph_lower and ch not in en_alph_upper and ch not in ru_alph_lower and \
-                    ch not in ru_alph_upper:
-                text_key += ' '
-                continue
-            text_key += key[counter % len(key)]
-            counter += 1
-
-        for i, j in zip(text, text_key):
-            # looking for which alphabet the key symbol belongs to
-            if j in en_alph_lower:
-                offset = en_alph_lower.index(j)
-            elif j in en_alph_upper:
-                offset = en_alph_upper.index(j)
-            elif j in ru_alph_lower:
-                offset = ru_alph_lower.index(j)
-            elif j in ru_alph_upper:
-                offset = ru_alph_upper.index(j)
-            else:
-                offset = 0
-
-            # looking for which alphabet the text symbol belongs to
-            if i in en_alph_lower:
-                rolled_alph = tolist(np.roll(en_alph_lower, -offset))
-                decrypted_text += en_alph_lower[rolled_alph.index(i)]
-
-            elif i in en_alph_upper:
-                rolled_alph = tolist(np.roll(en_alph_upper, -offset))
-                decrypted_text += en_alph_upper[rolled_alph.index(i)]
-
-            elif i in ru_alph_lower:
-                rolled_alph = tolist(np.roll(ru_alph_lower, -offset))
-                decrypted_text += ru_alph_lower[rolled_alph.index(i)]
-
-            elif i in ru_alph_upper:
-                rolled_alph = tolist(np.roll(ru_alph_upper, -offset))
-                decrypted_text += ru_alph_upper[rolled_alph.index(i)]
-            else:
-                decrypted_text += i
+        decrypted_text = vigenere(text, key, mode='decrypt')
 
         if self.input_path.text() != 'NO OUTPUT FILE':
             fout = open(self.input_path.text(), 'w')
@@ -535,7 +502,6 @@ class Vigenere(QtWidgets.QMainWindow, Ui_MainWindow):
             self.textBrowser_decrypted.setPlainText(decrypted_text)
 
         print(text)
-        print(text_key)
         print(decrypted_text)
 
 
