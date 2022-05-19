@@ -73,16 +73,18 @@ def decrypt(text, key):
     return vigenere(text, key, mode='decrypt')
 
 
-def find_key_len(text: str, alphabet: list):
+def find_key_len(text: str, alphabet: list, length: int):
     """
     Find length of keyword.
 
     """
+    max_len = len(text) // 2
+    if length > max_len:
+        length = max_len
     text = drs(text, alphabet)
     indicies_arithmetic_mean = []
     tmp = 0
-    estimated_len = 0
-    for i in range(1, len(text) // 2):
+    for i in range(1, length):
         strings = stic(text, i)
         for string in strings:
             tmp += ioc(string, alphabet)

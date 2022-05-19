@@ -36,12 +36,14 @@ class Analysis(QtWidgets.QMainWindow, Ui_MainWindow):
         self.language_comboBox.addItems(('RUS', 'ENG'))
         self.method_comboBox.addItems(('Индекс совпадений', 'Автокорреляционный', 'Касиски'))
         self.labelOld = self.input_path.text()
-        self._timer = QtCore.QTimer(self, interval=300)
+        self.old_len = self.key_len_spinbox.text()
+        self._timer = QtCore.QTimer(self, interval=1000)
         self._timer.timeout.connect(lambda: self.labelChanged())
+        self._timer.timeout.connect(lambda: self.key_len_changed())
         self._timer.start()
 
-        self.shift_count_spinbox.hide()
-        self.shift_count_label.hide()
+        # self.shift_count_spinbox.hide()
+        # self.shift_count_label.hide()
 
         self.ngram_len_spinbox.hide()
         self.ngram_len_label.hide()
@@ -61,11 +63,16 @@ class Analysis(QtWidgets.QMainWindow, Ui_MainWindow):
             self.labelOld = self.input_path.text()
             self.show_graph(self.language_comboBox.currentText())
 
+    def key_len_changed(self):
+        if self.old_len != self.key_len_combobox.currentText():
+            self.old_len = self.key_len_combobox.currentText()
+            self.find_key_kasiski()
+
     def change_interface(self):
         match self.method_comboBox.currentText():
             case 'Индекс совпадений':
-                self.shift_count_spinbox.hide()
-                self.shift_count_label.hide()
+                self.shift_count_spinbox.show()
+                self.shift_count_label.show()
                 self.lang_name_2.setText('ВАРИАНТЫ\nКЛЮЧЕЙ')
                 # self.key_line.show()
                 self.key_len_combobox.hide()
@@ -109,12 +116,28 @@ class Analysis(QtWidgets.QMainWindow, Ui_MainWindow):
         self.decrypt_btn.clicked.connect(lambda: self.decrypt(read_file('./' + self.input_path.text()),
                                                               self.key_combobox.currentText()))
 
-    # def find_key_kasiski(self, text):
-    #     strings = stic(text, int(self.key_len_combobox.currentText()))
-    #     key = ''
-    #     for string in strings:
-    #         key += find_key_letter(string, self.language_comboBox.currentText())
-    #     self.key_combobox.addItem(key)
+    def find_key_kasiski(self):
+        self.key_combobox.clear()
+        match self.language_comboBox.currentText():
+            case 'RUS':
+                alphabet = ru_alph
+            case 'ENG':
+                alphabet = en_alph
+            case _:
+                raise Exception('Wrong language!')
+        if not self.key_len_combobox.currentText():
+            column_count = 0
+        else:
+            column_count = int(self.key_len_combobox.currentText())
+        if column_count:
+            if self.input_path.text() != 'NO INPUT FILE':
+                strings = stic(drs(read_file('./' + self.input_path.text()), alphabet), column_count)
+            else:
+                strings = []
+            key = ''
+            for string in strings:
+                key += find_key_letter(string, self.language_comboBox.currentText())
+            self.key_combobox.addItem(key)
 
     def show_graph(self, language):
         match language:
@@ -132,7 +155,7 @@ class Analysis(QtWidgets.QMainWindow, Ui_MainWindow):
         new_text = drs(input_text, alphabet)
         match self.method_comboBox.currentText():
             case 'Индекс совпадений':
-                indicies = Index_of_coincedence.find_key_len(new_text, alphabet)
+                indicies = Index_of_coincedence.find_key_len(new_text, alphabet, self.shift_count_spinbox.value())
                 self.graph(indicies)
             case 'Автокорреляционный':
                 indicies = Autocorrelation.cac(new_text, self.shift_count_spinbox.value())
@@ -178,13 +201,13 @@ class Analysis(QtWidgets.QMainWindow, Ui_MainWindow):
                 if self.key_len_combobox.currentText() == '':
                     for option in key_length_options:
                         self.key_len_combobox.addItem(str(option))
-                column_count = int(self.key_len_combobox.currentText())
-                if column_count:
-                    strings = stic(new_text, column_count)
-                    key = ''
-                    for string in strings:
-                        key += find_key_letter(string, self.language_comboBox.currentText())
-                    self.key_combobox.addItem(key)
+                # column_count = int(self.key_len_combobox.currentText())
+                # if column_count:
+                #     strings = stic(new_text, column_count)
+                #     key = ''
+                #     for string in strings:
+                #         key += find_key_letter(string, self.language_comboBox.currentText())
+                #     self.key_combobox.addItem(key)
 
     def decrypt(self, text, key):
         decrypted_text = vigenere(text, key, mode='decrypt')
