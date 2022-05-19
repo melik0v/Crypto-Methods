@@ -60,7 +60,7 @@ def find_ngramm(text: str, length: int) -> tuple:
             tmp = text[j:length + j:]
             if tmp == ngram:
                 indicies.append(j + 1)
-        if len(indicies) > 1:
+        if len(indicies) > 2:
             tmp = (ngram, tuple(indicies))
             if tmp not in result:
                 result.append(tmp)

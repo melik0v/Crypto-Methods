@@ -202,6 +202,7 @@ class Ui_MainWindow(object):
 "font-family: Century Gothic;\n"
 "font-size: 14px;")
         self.shift_count_spinbox.setMaximum(1000)
+        self.shift_count_spinbox.setMinimum(100)
         self.shift_count_spinbox.setObjectName("shift_count_spinbox")
         self.key_combobox = QtWidgets.QComboBox(self.centralwidget)
         self.key_combobox.setGeometry(QtCore.QRect(260, 380, 841, 31))

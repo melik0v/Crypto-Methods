@@ -1,4 +1,3 @@
-import numpy as np
 from Caesar import caesar
 from Vigenere import vigenere
 
@@ -89,7 +88,7 @@ def find_key_len(text: str, alphabet: list):
             tmp += ioc(string, alphabet)
         tmp /= len(strings)
         indicies_arithmetic_mean.append((i, tmp))
-    print(indicies_arithmetic_mean)
+    # print(indicies_arithmetic_mean)
     return indicies_arithmetic_mean
 
 
@@ -109,7 +108,7 @@ def find_keys(strings: tuple[str], alphabet: list) -> tuple:
                 mutual_index = tmp
                 shift = j
         indicies.append((mutual_index, shift))
-    print(np.array(indicies))
+    # print(np.array(indicies))
     for letter in alphabet:
         key_word = letter
         for index in indicies:

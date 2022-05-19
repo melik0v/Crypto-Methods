@@ -132,7 +132,7 @@ def find_key_letter(text: str, language: str) -> str:
         # print(f'{i} : {real_freqs}')
         results.append(pierson_criteria(get_values(nominal_freqs), get_values(real_freqs)))
     # print(np.array(results))
-    shift = len(alphabet) - results.index(min(results))
+    shift = (len(alphabet) - results.index(min(results))) % len(alphabet)
     return alphabet[shift]
 
 
