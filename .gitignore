@@ -1,6 +1,6 @@
 /venv
 /build
-/dist
+*/dist
 /lab1
 /*.spec
 /.idea
